@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Address__c</fullName>
+    <description>Street, city, state, and ZIP of the insurance provider.</description>
+    <inlineHelpText>Enter the full mailing address, including street, city, state, ZIP/postal code, and country of the insurance provider.</inlineHelpText>
+    <label>Address</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>
