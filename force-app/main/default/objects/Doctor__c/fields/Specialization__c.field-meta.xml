@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Specialization__c</fullName>
+    <description>Medical specialty of the doctor.</description>
+    <inlineHelpText>Medical specialty of the doctor.</inlineHelpText>
+    <label>Specialization</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>General Practitioner</fullName>
+                <default>false</default>
+                <label>General Practitioner</label>
+            </value>
+            <value>
+                <fullName>Pediatrician</fullName>
+                <default>false</default>
+                <label>Pediatrician</label>
+            </value>
+            <value>
+                <fullName>Dermatologist</fullName>
+                <default>false</default>
+                <label>Dermatologist</label>
+            </value>
+            <value>
+                <fullName>Cardiologist</fullName>
+                <default>false</default>
+                <label>Cardiologist</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

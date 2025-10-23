@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Insurance_Required_For_Insured</fullName>
+    <active>true</active>
+    <description>Insurance Company field needs to be filled whenever the patient’s Funding Type is set to Insured.</description>
+    <errorConditionFormula>AND(
+    ISPICKVAL(Funding_Type__c, &quot;Insured&quot;),
+    ISBLANK(Insurance_Company__c)
+)</errorConditionFormula>
+    <errorDisplayField>Insurance_Company__c</errorDisplayField>
+    <errorMessage>Please select an Insurance Company if the patient is insured.</errorMessage>
+</ValidationRule>
