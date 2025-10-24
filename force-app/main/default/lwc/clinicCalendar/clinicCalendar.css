@@ -1,0 +1,23 @@
+.calendar-card {
+    max-width: 80rem;       
+    margin: 0 auto;          
+}
+
+.calendar-container {
+    max-width: 70rem;       
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.doctor-filter {
+    width: 20rem;
+
+}
+
+.combobox-wrapper {
+    display: flex;
+    margin-bottom: 1rem;
+    justify-content: center;
+
+}
+

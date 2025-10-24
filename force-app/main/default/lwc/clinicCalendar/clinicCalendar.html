@@ -1,0 +1,19 @@
+<template>
+    <lightning-card title="Clinic Calendar" class="calendar-card">
+        <div class="combobox-wrapper">
+            <template if:true={doctorOptions}>
+                <lightning-combobox
+                    class="doctor-filter"
+                    name="doctorFilter"
+                    label="Filter by Doctor"
+                    value={selectedDoctor}
+                    placeholder="Select a doctor"
+                    options={doctorOptions}
+                    onchange={handleDoctorChange}>
+                </lightning-combobox>
+            </template>
+        </div>
+
+        <div class="calendar-container"></div>
+    </lightning-card>
+</template>
