@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_Appointment_Reminder</name>
+        <label>Send Appointment Reminder</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Get_Patient_Email</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <elementReference>Get_Patient_Email.Patient__r.Email_Address__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <stringValue>OrgWideEmailAddress</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderAddress</name>
+            <value>
+                <stringValue>ceca.pele@gmail.com</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <elementReference>Email_Subject</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>Email_Reminder</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useLineBreaks</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>1.0.1</versionString>
+    </actionCalls>
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Any_Appointments</name>
+        <label>Any Appointments?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No Appointments</defaultConnectorLabel>
+        <rules>
+            <name>Appointments_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Tomorrow_s_Appointments</leftValueReference>
+                <operator>IsEmpty</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Patient_Email</targetReference>
+            </connector>
+            <label>Appointments Found</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Checks whether the patient has an email address before trying to send the reminder.</description>
+        <name>Check_Patient_Email</name>
+        <label>Check Patient Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_Patient_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Email</defaultConnectorLabel>
+        <rules>
+            <name>Has_Email</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Patient_Email.Patient__r.Email_Address__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Appointment_Reminder</targetReference>
+            </connector>
+            <label>Has Email</label>
+        </rules>
+    </decisions>
+    <description>Runs every morning and sends email reminders to patients who have appointments the following day.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Formats the appointment start time into a patient-friendly text value (e.g., 10:30 AM).</description>
+        <name>Formatted_Appointment_Time</name>
+        <dataType>String</dataType>
+        <expression>TEXT(
+    MOD(VALUE(LEFT(TEXT({!Get_Patient_Email.Start_Time__c}), 2)) + 11, 12) + 1
+)
+&amp; &quot;:&quot; &amp;
+MID(TEXT({!Get_Patient_Email.Start_Time__c}), 4, 2)
+&amp; IF(VALUE(LEFT(TEXT({!Get_Patient_Email.Start_Time__c}), 2)) &lt; 12, &quot; AM&quot;, &quot; PM&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Returns tomorrow’s date.</description>
+        <name>Tomorrow_Date</name>
+        <dataType>Date</dataType>
+        <expression>TODAY() + 1</expression>
+    </formulas>
+    <interviewLabel>Daily Appointment Reminders to Patients {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Daily Appointment Reminders to Patients</label>
+    <loops>
+        <description>Iterates through each Appointment scheduled for tomorrow. For every appointment in the collection, the Flow will fetch the related Patient and send them a reminder email.</description>
+        <name>Get_Patient_Email</name>
+        <label>Get Patient Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Tomorrow_s_Appointments</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Check_Patient_Email</targetReference>
+        </nextValueConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Finds all Appointment records where the appointment date is tomorrow&apos;s date. This collection will be used to send reminder emails to patients.</description>
+        <name>Get_Tomorrow_s_Appointments</name>
+        <label>Get Tomorrow&apos;s Appointments</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Any_Appointments</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Date__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Tomorrow_Date</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Scheduled</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Appointment__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Tomorrow_s_Appointments</targetReference>
+        </connector>
+        <schedule>
+            <frequency>Daily</frequency>
+            <startDate>2025-09-18</startDate>
+            <startTime>08:00:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>Email_Reminder</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 10px; width: 750.4px; vertical-align: top; white-space: pre;&quot;&gt;&lt;img style=&quot;max-width: 683.24px; height: 91.2125px; margin-bottom: 12px; width: 116px;&quot; class=&quot;ckimgrsz&quot; alt=&quot;Private Clinic logo&quot; src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; data-cke-saved-src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; title=&quot;Private Clinic logo&quot;&gt;                                                   &lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Private Clinic&lt;br&gt;456 Elm Street&lt;br&gt;Springfield, IL 62704&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Email: info@clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Phone: (217) 555-1234&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Website: www.clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Dear {!Get_Patient_Email.Patient__r.Name},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;This is a friendly reminder for your appointment scheduled for tomorrow:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Date&lt;/strong&gt;: {!Get_Patient_Email.Date__c}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Time&lt;/strong&gt;: {!Formatted_Appointment_Time}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Doctor&lt;/strong&gt;: {!Get_Patient_Email.Doctor__r.Name}&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;If you have any questions, please contact us at &lt;strong style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;(217) 555-1234&lt;/strong&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt; or &lt;/span&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;info@clinic.com&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;We look forward to seeing you!&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Sincerely,&lt;/p&gt;&lt;p&gt;&lt;em&gt;Private Clinic Team&lt;/em&gt;&lt;/p&gt;&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve; border-top: 1px solid rgb(204, 204, 204); margin-top: 20px; padding-top: 10px; font-size: 12px; color: rgb(102, 102, 102);&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 8px; width: 375.2px; vertical-align: top;&quot;&gt;© 2025 Private&amp;nbsp;Clinic. All rights reserved.&lt;/td&gt;&lt;td style=&quot;padding: 8px; text-align: right; width: 375.2px; vertical-align: top;&quot;&gt;456 Elm Street, Springfield, IL 62704 | (217) 555-1234 | info@clinic.com&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;﻿&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <name>Email_Subject</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>Reminder: Your appointment tomorrow at {!Formatted_Appointment_Time} with {!Get_Patient_Email.Doctor__r.Name}</text>
+    </textTemplates>
+</Flow>

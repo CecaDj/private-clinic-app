@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Triggered when the appointment status changes to Cancelled. Sends a cancellation email to the patient.</description>
+        <name>Send_Appointment_Cancelled_Email</name>
+        <label>Send Appointment Cancelled Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <elementReference>$Record.Patient__r.Email_Address__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Appointment Cancelled</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>Appointment_Cancelled_Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useLineBreaks</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>1.0.1</versionString>
+    </actionCalls>
+    <actionCalls>
+        <description>Sends a confirmation email to the patient when a new appointment is created. Includes appointment date, time, doctor, and treatment details.</description>
+        <name>Send_Confirmation_Email</name>
+        <label>Send Confirmation Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <elementReference>$Record.Patient__r.Email_Address__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Appointment Confirmation</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>Appointment_Confirmation_Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useLineBreaks</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>attachmentId</name>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>1.0.1</versionString>
+    </actionCalls>
+    <actionCalls>
+        <description>Sends an email to the patient when the appointment’s date, time, treatment, or doctor changes. Notifies the patient of the updated appointment details.</description>
+        <name>Send_Updated_Appointment_Email</name>
+        <label>Send Updated Appointment Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <elementReference>$Record.Patient__r.Email_Address__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Appointment Updated</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>Appointment_Updated_Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useLineBreaks</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>1.0.1</versionString>
+    </actionCalls>
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <description>Determines the appropriate email to send to the patient: confirmation of a new appointment, notification of an updated appointment (date, time, treatment, or doctor changed), or notification of a cancelled appointment.</description>
+        <name>Determine_Type_of_Appointment_Email</name>
+        <label>Determine Type of Appointment Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No Action</defaultConnectorLabel>
+        <rules>
+            <name>New_Appointment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Is_New_Appointment</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Confirmation_Email</targetReference>
+            </connector>
+            <label>New Appointment</label>
+        </rules>
+        <rules>
+            <name>Updated_Appointment</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>Is_Appointment_Updated</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Updated_Appointment_Email</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Updated Appointment</label>
+        </rules>
+        <rules>
+            <name>Cancelled_Appointment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Is_Appointment_Cancelled</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Appointment_Cancelled_Email</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Cancelled Appointment</label>
+        </rules>
+    </decisions>
+    <description>Sends email notifications to patients whenever an appointment is created, updated, or cancelled. It determines the type of email to send based on changes to the appointment record.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Formats the appointment start time into a patient-friendly text value (e.g., 10:30 AM).</description>
+        <name>Formatted_Appointment_Time</name>
+        <dataType>String</dataType>
+        <expression>TEXT(
+  MOD(VALUE(LEFT(TEXT({!$Record.Start_Time__c}),2)) + 11, 12) + 1
+) &amp; &quot;:&quot; &amp; MID(TEXT({!$Record.Start_Time__c}),4,2) &amp; 
+IF(VALUE(LEFT(TEXT({!$Record.Start_Time__c}),2)) &lt; 12, &quot; AM&quot;, &quot; PM&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Returns true if the appointment record’s status has changed to Cancelled.</description>
+        <name>Is_Appointment_Cancelled</name>
+        <dataType>Boolean</dataType>
+        <expression>NOT(ISNEW()) &amp;&amp;
+ISCHANGED({!$Record.Status__c}) &amp;&amp;
+ISPICKVAL({!$Record.Status__c}, &quot;Cancelled&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Returns true if any of the key fields (date, time, doctor, treatment) have changed.</description>
+        <name>Is_Appointment_Updated</name>
+        <dataType>Boolean</dataType>
+        <expression>NOT(ISPICKVAL({!$Record.Status__c}, &quot;Cancelled&quot;)) &amp;&amp;
+(
+ISCHANGED({!$Record.Date__c}) ||
+ISCHANGED({!$Record.Start_Time__c}) ||
+ISCHANGED({!$Record.Doctor__c}) ||
+ISCHANGED({!$Record.Treatment__c})
+)</expression>
+    </formulas>
+    <formulas>
+        <description>Returns true if the appointment record was just created.</description>
+        <name>Is_New_Appointment</name>
+        <dataType>Boolean</dataType>
+        <expression>ISNEW()</expression>
+    </formulas>
+    <interviewLabel>Appointment Email Notification {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Appointment Email Notification</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Determine_Type_of_Appointment_Email</targetReference>
+        </connector>
+        <object>Appointment__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <description>Email template used to notify the patient when their appointment has been cancelled.</description>
+        <name>Appointment_Cancelled_Email</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 100%;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;width: 50%; padding: 10px; vertical-align: top; white-space: pre;&quot;&gt;&lt;img class=&quot;ckimgrsz&quot; alt=&quot;Private Clinic logo&quot; src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; data-cke-saved-src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; style=&quot;max-width: 683.24px; width: 116px; height: 91.2125px;&quot; title=&quot;Private Clinic logo&quot;&gt;                                                   &lt;p&gt;&lt;span style=&quot;font-family:Arial,Helvetica,sans-serif;&quot;&gt;Private Clinic&lt;br&gt;456 Elm Street&lt;br&gt;Springfield, IL 62704&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Email: info@clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Phone: (217) 555-1234&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Website: www.clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Dear {!$Record.Patient__r.Name},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;We are writing to let you know that your appointment has been &lt;strong&gt;cancelled&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Appointment Details&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Date:&lt;/strong&gt; {!$Record.Date__c}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Time:&lt;/strong&gt; {!Formatted_Appointment_Time}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Doctor:&lt;/strong&gt; {!$Record.Doctor__r.Name}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Treatment:&lt;/strong&gt; {!$Record.Treatment__r.Name}&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;If this cancellation was not expected or you would like to reschedule, please contact our clinic at &lt;strong&gt;(217) 555-1234&lt;/strong&gt; or &lt;strong&gt;info@clinic.com&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;We look forward to helping you book a new appointment soon.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Sincerely,&lt;/p&gt;&lt;p&gt;&lt;em&gt;Private Clinic Team&lt;/em&gt;&lt;/p&gt;&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 100%; border-top: 1px solid rgb(204, 204, 204); margin-top: 20px; padding-top: 10px; font-size: 12px; color: rgb(102, 102, 102);&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;width:50%; vertical-align: top;&quot;&gt;© 2025 Private&amp;nbsp;Clinic. All rights reserved.&lt;/td&gt;&lt;td style=&quot;width:50%; text-align:right; vertical-align: top;&quot;&gt;456 Elm Street, Springfield, IL 62704 | (217) 555-1234 | info@clinic.com&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;﻿&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <description>Email template used to notify the patient when their appointment has been created.</description>
+        <name>Appointment_Confirmation_Email</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 10px; width: 750.4px; vertical-align: top; white-space: pre;&quot;&gt;&lt;img class=&quot;ckimgrsz&quot; alt=&quot;Private Clinic logo&quot; src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; data-cke-saved-src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; title=&quot;Private Clinic logo&quot; style=&quot;max-width: 683.24px; height: 91.2125px; margin-bottom: 12px; width: 116px;&quot;&gt;                                                   &lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Private Clinic&lt;br&gt;456 Elm Street&lt;br&gt;Springfield, IL 62704&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Email: info@clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Phone: (217) 555-1234&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Website: www.clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Dear {!$Record.Patient__r.Name},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Hope all is well.&lt;/p&gt;&lt;p&gt;Your appointment with &lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Record.Doctor__r.Name}&lt;/span&gt; has been successfully &lt;strong&gt;booked&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;Please review the appointment details below.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Appointment Details&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Date:&lt;/strong&gt; {!$Record.Date__c}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Time:&lt;/strong&gt; {!Formatted_Appointment_Time}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Doctor:&lt;/strong&gt; {!$Record.Doctor__r.Name}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Treatment:&lt;/strong&gt; {!$Record.Treatment__r.Name}&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;If you need further assistance, please contact our clinic at &lt;strong&gt;(217) 555-1234&lt;/strong&gt; or &lt;strong&gt;info@clinic.com&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;We look forward to seeing you at your appointment.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Sincerely,&lt;/p&gt;&lt;p&gt;&lt;em&gt;Private Clinic Team&lt;/em&gt;&lt;/p&gt;&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve; border-top: 1px solid rgb(204, 204, 204); margin-top: 20px; padding-top: 10px; font-size: 12px; color: rgb(102, 102, 102);&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 8px; width: 375.2px; vertical-align: top;&quot;&gt;© 2025 Private&amp;nbsp;Clinic. All rights reserved.&lt;/td&gt;&lt;td style=&quot;padding: 8px; text-align: right; width: 375.2px; vertical-align: top;&quot;&gt;456 Elm Street, Springfield, IL 62704 | (217) 555-1234 | info@clinic.com&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;﻿&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <description>Email template used to notify the patient when their appointment has been updated.</description>
+        <name>Appointment_Updated_Email</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 10px; width: 750.4px; vertical-align: top; white-space: pre;&quot;&gt;&lt;img class=&quot;ckimgrsz&quot; alt=&quot;Private Clinic logo&quot; src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; data-cke-saved-src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; title=&quot;Private Clinic logo&quot; style=&quot;max-width: 683.24px; height: 91.2125px; margin-bottom: 12px; width: 116px;&quot;&gt;                                                   &lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Private Clinic&lt;br&gt;456 Elm Street&lt;br&gt;Springfield, IL 62704&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Email: info@clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Phone: (217) 555-1234&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Website: www.clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Dear {!$Record.Patient__r.Name},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Hope all is well.&lt;/p&gt;&lt;p&gt;We want to inform you that your appointment details have been &lt;strong&gt;updated&lt;/strong&gt;. Please review the latest information below:&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Updated Appointment Details&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Date:&lt;/strong&gt; {!$Record.Date__c}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Time:&lt;/strong&gt; {!Formatted_Appointment_Time}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Doctor:&lt;/strong&gt; {!$Record.Doctor__r.Name}&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Treatment:&lt;/strong&gt; {!$Record.Treatment__r.Name}&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;If you need further assistance, please contact our clinic at &lt;strong&gt;(217) 555-1234&lt;/strong&gt; or &lt;strong&gt;info@clinic.com&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;We look forward to seeing you at your updated appointment.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Sincerely,&lt;/p&gt;&lt;p&gt;&lt;em&gt;Private Clinic Team&lt;/em&gt;&lt;/p&gt;&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve; border-top: 1px solid rgb(204, 204, 204); margin-top: 20px; padding-top: 10px; font-size: 12px; color: rgb(102, 102, 102);&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 8px; width: 375.2px; vertical-align: top;&quot;&gt;© 2025 Private&amp;nbsp;Clinic. All rights reserved.&lt;/td&gt;&lt;td style=&quot;padding: 8px; text-align: right; width: 375.2px; vertical-align: top;&quot;&gt;456 Elm Street, Springfield, IL 62704 | (217) 555-1234 | info@clinic.com&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;﻿&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+</Flow>
