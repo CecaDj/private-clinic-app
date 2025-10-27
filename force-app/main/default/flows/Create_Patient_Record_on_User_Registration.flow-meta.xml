@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Sets the portal user as both the linked user and the record owner for the Patient record retrieved by email.</description>
+        <name>Assign_User_and_Owner_to_Patient_Record</name>
+        <label>Assign User to Patient Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Get_Existing_Patient_by_Email.User__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Existing_Patient_Record</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Determines whether the system should link the user to an existing Patient or create a new one.</description>
+        <name>Check_if_Patient_Exists</name>
+        <label>Check if Patient Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Create_New_Patient_Record</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Existing Patient Found</defaultConnectorLabel>
+        <rules>
+            <name>Existing_Patient_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Existing_Patient_by_Email</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_User_and_Owner_to_Patient_Record</targetReference>
+            </connector>
+            <label>Existing Patient Found</label>
+        </rules>
+    </decisions>
+    <description>Automatically create a new Patient record for new portal users,
+or link the portal user to an existing Patient record with the same email.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>PatientNameFromUser</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.FirstName} &amp; &apos; &apos; &amp; {!$Record.LastName}</expression>
+    </formulas>
+    <interviewLabel>Create Patient Record {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Create/update Patient Record on User Registration (Patient Portal)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>Creates a new Patient record linked to the portal user if none already exists with the same email.</description>
+        <name>Create_New_Patient_Record</name>
+        <label>Create New Patient Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Email_Address__c</field>
+            <value>
+                <elementReference>$Record.Email</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Funding_Type__c</field>
+            <value>
+                <stringValue>Self-Funding</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>PatientNameFromUser</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>User__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Patient__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <description>Checks whether a Patient record already exists with the same email address as the new portal user.</description>
+        <name>Get_Existing_Patient_by_Email</name>
+        <label>Get Existing Patient by Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_if_Patient_Exists</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Email_Address__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Email</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Patient__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_Existing_Patient_Record</name>
+        <label>Update Existing Patient Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>Get_Existing_Patient_by_Email</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Existing_Patient_by_Email</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ProfileId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>00egK0000064OI1QAM</stringValue>
+            </value>
+        </filters>
+        <object>User</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

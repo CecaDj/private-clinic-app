@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Sends an email reminder to the patient for the current unpaid invoice.</description>
+        <name>Send_Invoice_Reminder_Email</name>
+        <label>Send Invoice Reminder Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Loop_Through_Unpaid_Invoices</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <elementReference>Loop_Through_Unpaid_Invoices.Patient__r.Email_Address__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <stringValue>OrgWideEmailAddress</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderAddress</name>
+            <value>
+                <stringValue>ceca.pele@gmail.com</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Reminder: Outstanding Invoice</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>Unpaid_Invoice_Reminder_Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>useLineBreaks</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>1.0.1</versionString>
+    </actionCalls>
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <description>Proceed to send email if the patient has an email address.</description>
+        <name>Check_Patient_Email</name>
+        <label>Check Patient Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Loop_Through_Unpaid_Invoices</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Email</defaultConnectorLabel>
+        <rules>
+            <name>Has_Email</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_Through_Unpaid_Invoices.Patient__r.Email_Address__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Invoice_Reminder_Email</targetReference>
+            </connector>
+            <label>Has Email</label>
+        </rules>
+    </decisions>
+    <description>Runs every Monday morning to send reminder emails to patients with outstanding invoices.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Formats the appointment start time into a patient-friendly text value (e.g., 10:30 AM).</description>
+        <name>Formatted_Appointment_Time</name>
+        <dataType>String</dataType>
+        <expression>TEXT(
+    MOD(VALUE(LEFT(TEXT({!Loop_Through_Unpaid_Invoices.Appointment__r.Start_Time__c}), 2)) + 11, 12) + 1
+)
+&amp; &quot;:&quot; &amp;
+MID(TEXT({!Loop_Through_Unpaid_Invoices.Appointment__r.Start_Time__c}), 4, 2)
+&amp; IF(VALUE(LEFT(TEXT({!Loop_Through_Unpaid_Invoices.Appointment__r.Start_Time__c}), 2)) &lt; 12, &quot; AM&quot;, &quot; PM&quot;)</expression>
+    </formulas>
+    <interviewLabel>Weekly Invoice Reminders {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Weekly Invoice Reminders</label>
+    <loops>
+        <description>Iterates through each unpaid invoice to send an email reminder to the related patient.</description>
+        <name>Loop_Through_Unpaid_Invoices</name>
+        <label>Loop Through Unpaid Invoices</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Unpaid_Invoices</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Check_Patient_Email</targetReference>
+        </nextValueConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Retrieves all unpaid invoices to send reminder emails to patients.</description>
+        <name>Get_Unpaid_Invoices</name>
+        <label>Get Unpaid Invoices</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Through_Unpaid_Invoices</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Sent</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Due_Date__c</field>
+            <operator>LessThanOrEqualTo</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Invoice__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Unpaid_Invoices</targetReference>
+        </connector>
+        <schedule>
+            <frequency>Weekly</frequency>
+            <startDate>2025-09-22</startDate>
+            <startTime>08:00:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>Unpaid_Invoice_Reminder_Email</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve;&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 10px; width: 750.4px; vertical-align: top; white-space: pre;&quot;&gt;&lt;img style=&quot;max-width: 683.24px; height: 91.2125px; margin-bottom: 12px; width: 116px;&quot; class=&quot;ckimgrsz&quot; alt=&quot;Private Clinic logo&quot; src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; data-cke-saved-src=&quot;https://orgfarm-781cff2ed0-dev-ed.develop.file.force.com/file-asset-public/Private_Clinic_logo?oid=00DgK00000AfVIE&quot; title=&quot;Private Clinic logo&quot;&gt;                                                   &lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Private Clinic&lt;br&gt;456 Elm Street&lt;br&gt;Springfield, IL 62704&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Email: info@clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Phone: (217) 555-1234&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;Website: www.clinic.com&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Dear {!Loop_Through_Unpaid_Invoices.Patient__r.Name},&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;This is a friendly reminder to pay your &lt;strong&gt;outstanding invoice of ${!Loop_Through_Unpaid_Invoices.Total_Amount__c}&lt;/strong&gt;, for your appointment on {!Loop_Through_Unpaid_Invoices.Appointment__r.Date__c}&amp;nbsp;at&amp;nbsp;{!Formatted_Appointment_Time} with {!Loop_Through_Unpaid_Invoices.Appointment__r.Doctor__r.Name}.&lt;/p&gt;&lt;p&gt;If you have already made the payment, please disregard this message.&amp;nbsp;&lt;/p&gt;&lt;p&gt;Thank you for your prompt attention.&lt;/p&gt;&lt;p&gt;If you have any questions, please contact us at &lt;strong style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;(217) 555-1234&lt;/strong&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt; or &lt;/span&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;info@clinic.com&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Sincerely,&lt;/p&gt;&lt;p&gt;&lt;em&gt;Private Clinic Team&lt;/em&gt;&lt;/p&gt;&lt;table class=&quot;ql-table-blob&quot; style=&quot;width: 750.4px; white-space-collapse: preserve; border-top: 1px solid rgb(204, 204, 204); margin-top: 20px; padding-top: 10px; font-size: 12px; color: rgb(102, 102, 102);&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td style=&quot;padding: 8px; width: 375.2px; vertical-align: top;&quot;&gt;© 2025 Private&amp;nbsp;Clinic. All rights reserved.&lt;/td&gt;&lt;td style=&quot;padding: 8px; text-align: right; width: 375.2px; vertical-align: top;&quot;&gt;456 Elm Street, Springfield, IL 62704 | (217) 555-1234 | info@clinic.com&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;p&gt;&lt;span style=&quot;font-family: Arial, Helvetica, sans-serif;&quot;&gt;﻿&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+</Flow>
