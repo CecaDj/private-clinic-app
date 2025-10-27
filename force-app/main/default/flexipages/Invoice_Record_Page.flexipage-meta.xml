@@ -132,8 +132,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Issue_Date__c</fieldItem>
-                <identifier>RecordIssue_Date_cField</identifier>
+                <fieldItem>Record.Due_Date__c</fieldItem>
+                <identifier>RecordDue_Date_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -142,8 +142,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Due_Date__c</fieldItem>
-                <identifier>RecordDue_Date_cField</identifier>
+                <fieldItem>Record.Issue_Date__c</fieldItem>
+                <identifier>RecordIssue_Date_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-70d2e892-c9d6-467a-acbd-12722262d12a</name>
