@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Doctor_Working_Hours_Limits</fullName>
+    <active>true</active>
+    <description>Working hours must be between 7:00 AM and 8:00 PM.</description>
+    <errorConditionFormula>OR(
+  AND(
+    NOT(ISBLANK(Working_Hours_Start__c)),
+    Working_Hours_Start__c &lt; TIMEVALUE(&quot;07:00:00.000&quot;)
+  ),
+  AND(
+    NOT(ISBLANK(Working_Hours_Start__c)),
+    Working_Hours_Start__c &gt; TIMEVALUE(&quot;20:00:00.000&quot;)
+  ),
+  AND(
+    NOT(ISBLANK(Working_Hours_End__c)),
+    Working_Hours_End__c &gt; TIMEVALUE(&quot;20:00:00.000&quot;)
+  ),
+  AND(
+    NOT(ISBLANK(Working_Hours_End__c)),
+    Working_Hours_End__c &lt; TIMEVALUE(&quot;07:00:00.000&quot;)
+  )
+)</errorConditionFormula>
+    <errorMessage>Working hours must be between 7:00 AM and 8:00 PM.</errorMessage>
+</ValidationRule>
