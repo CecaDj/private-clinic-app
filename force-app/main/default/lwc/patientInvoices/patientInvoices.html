@@ -1,0 +1,31 @@
+<template>
+  <lightning-card title="My Invoices" icon-name="custom:custom63">
+    <template if:true={isLoading}>
+      <div class="slds-p-around_medium slds-text-align_center">
+        <lightning-spinner alternative-text="Loading invoices..."></lightning-spinner>
+      </div>
+    </template>
+
+    <template if:true={invoices.length}>
+      <lightning-datatable
+        key-field="Id"
+        data={invoices}
+        columns={columns}
+        hide-checkbox-column
+        onrowaction={handleRowAction}>
+      </lightning-datatable>
+    </template>
+
+    <template if:true={noInvoices}>
+      <div class="slds-p-around_medium slds-text-align_center slds-text-color_weak">
+        No invoices available at the moment.
+      </div>
+    </template>
+
+    <template if:true={error}>
+      <div class="slds-p-around_medium slds-text-color_error">
+        {error}
+      </div>
+    </template>
+  </lightning-card>
+</template>
