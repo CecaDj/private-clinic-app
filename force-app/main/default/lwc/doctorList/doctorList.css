@@ -1,0 +1,42 @@
+ .doctor-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: start;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.doctor-card {
+  width: 300px;
+  border: 1px solid #d8dde6;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  padding: 1rem;
+  text-align: left;
+  font-family: "Segoe UI", "Open Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.doctor-name {
+  font-weight: 600;
+  font-size: 1.90rem; 
+  color: #032d60;
+  margin-bottom: 0.25rem;
+}
+
+.doctor-spec {
+  font-style: italic;
+  color: #444;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.doctor-card p {
+  margin: 0.2rem 0;
+  font-size: 0.80rem;
+  color: #2e2e2e;
+}
+
+lightning-button {
+  display: block;
+  margin: 0.75rem auto 0 auto;
+} 

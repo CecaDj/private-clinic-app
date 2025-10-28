@@ -1,0 +1,35 @@
+<template>
+  <lightning-card title="Our Doctors" icon-name="custom:custom63">
+    <div class="doctor-grid">
+      <template if:true={doctors.length}>
+        <template for:each={doctors} for:item="doc">
+          <div key={doc.Id} class="doctor-card">
+            <p class="doctor-name">{doc.Name}</p>
+            <p class="doctor-spec">Specialization: {doc.Specialization__c}</p>
+            <p>Working Days: {doc.displayDays}</p>
+            <p>Hours: {doc.displayHours}</p>
+            <lightning-button
+              variant="brand"
+              label="Check Availability"
+              data-id={doc.Id}
+              data-name={doc.Name}
+              onclick={openModal}>
+            </lightning-button>
+          </div>
+        </template>
+      </template>
+
+      <template if:true={loading}>
+        <lightning-spinner size="medium"></lightning-spinner>
+      </template>
+    </div>
+  </lightning-card>
+
+  <template if:true={showModal}>
+    <c-doctor-availability-modal
+      doctor-id={selectedDoctorId}
+      doctor-name={selectedDoctorName}
+      onclosemodal={closeModal}>
+    </c-doctor-availability-modal>
+  </template>
+</template>
