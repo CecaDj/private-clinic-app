@@ -1,0 +1,68 @@
+<template>
+    <lightning-card title="My Appointments" icon-name="standard:appointment">
+        <div class="slds-p-around_medium">
+
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </template>
+
+            <template if:false={isLoading}>
+
+                <!-- UPCOMING -->
+                <div class="slds-text-title_bold slds-m-bottom_small">Upcoming Appointments</div>
+
+                <template if:true={upcoming.length}>
+                    <template for:each={upcoming} for:item="appt">
+                        <div key={appt.Id} class="slds-box slds-p-around_medium slds-m-vertical_small slds-theme_default">
+                            <p class="slds-text-heading_small">📅 {appt.displayDate} at 🕐 {appt.displayTime}</p>
+                            <p>👨‍⚕️ {appt.Doctor__r.Name}
+                                <template if:true={appt.Treatment__r}>
+                                    — {appt.Treatment__r.Name}
+                                </template>
+                            </p>
+                            <p class="slds-m-top_x-small"><em>Status: {appt.Status__c}</em></p>
+
+                            <template if:true={appt.showCancelButton}>
+                                <lightning-button
+                                    variant="destructive"
+                                    label="Cancel Appointment"
+                                    data-id={appt.Id}
+                                    class="slds-m-top_small"
+                                    onclick={handleCancel}>
+                                </lightning-button>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+
+                <template if:false={upcoming.length}>
+                    <p class="slds-text-color_weak">No upcoming appointments.</p>
+                </template>
+
+                <hr class="slds-m-vertical_medium"/>
+
+                <!-- PAST -->
+                <div class="slds-text-title_bold slds-m-bottom_small">Past Appointments</div>
+
+                <template if:true={past.length}>
+                    <template for:each={past} for:item="appt">
+                        <div key={appt.Id} class="past slds-box slds-p-around_medium slds-m-vertical_small">
+                            <p class="slds-text-heading_small">📅 {appt.displayDate} at 🕐 {appt.displayTime}</p>
+                            <p>👨‍⚕️ {appt.Doctor__r.Name}
+                                <template if:true={appt.Treatment__r}>
+                                    — {appt.Treatment__r.Name}
+                                </template>
+                            </p>
+                            <p class="slds-m-top_x-small"><em>Status: {appt.Status__c}</em></p>
+                        </div>
+                    </template>
+                </template>
+
+                <template if:false={past.length}>
+                    <p class="slds-text-color_weak">No past appointments.</p>
+                </template>
+
+            </template>
+        </div>
+    </lightning-card>
+</template>
