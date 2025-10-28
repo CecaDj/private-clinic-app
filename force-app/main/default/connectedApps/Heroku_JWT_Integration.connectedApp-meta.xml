@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConnectedApp xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>svetlana.c.dj@gmail.com</contactEmail>
+    <label>Heroku JWT Integration</label>
+    <oauthConfig>
+        <callbackUrl>https://login.salesforce.com/services/oauth2/success</callbackUrl>
+        <certificate>MIIDIzCCAgugAwIBAgIUBda6X6YVnHOFUrFvNbgCnYD/OEMwDQYJKoZIhvcNAQELBQAwITEfMB0GA1UEAwwWSGVyb2t1IEpXVCBJbnRlZ3JhdGlvbjAeFw0yNTEwMDcxMjQ5NDFaFw0zNTEwMDUxMjQ5NDFaMCExHzAdBgNVBAMMFkhlcm9rdSBKV1QgSW50ZWdyYXRpb24wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDDGYtGGfgxug/qqKgHewTZ7x8J94DI72PGXA8mPobcwwRTDIjv2nK0xYEv/sRREsv+lTYqvK1cYS7Dm2qhbcVzJf0vg9geg5UPeJi9fYJKlC80QBo6oZG7sA8z8Bp0aI78ouBtERY/Do2c/UbTzuem9Rhd8Z6AFrnHZol+++F52dUQGkdGmjL4mxpH8L/qCEpI5dc9ZMIym75ofcweyRdhXFearjXM4KsEDBzKTFcrgRIMw3cDrUhs3P0IdXTKGoMPfvVTFv47435vIIBpyYFI0VEe9qm+uJ9nuhYVXZQeYRmKpITO0s/y63Jrww0jL7tSfG6CbfBQM+0SqnZMdJH1AgMBAAGjUzBRMB0GA1UdDgQWBBTfbdmmIhlMyUpl+vbXS4hVxddsZjAfBgNVHSMEGDAWgBTfbdmmIhlMyUpl+vbXS4hVxddsZjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQDAQzmR5iCYewRnS+RF0+eM51iDloBNs16nmdYLaJkFLDFR5WoGytGCbA21afVa17Qfoi3TMHkEinICv2r0ahKrsRxI+A9mUICuYE4gjP12uLUL54qeCqUoT+EKzJaRV6jzWya/G56Swp4P2VDhF+F9OnXzxuR6tgW2yBTdQZ7L1rs91B2+7Gf1NTdRZoRzjhw1XTerpG5QDiMyf8h22xMhNSwIeXFRquofn+XQbH93Mv5Dk2SYtL7oCmAEl7knUjCT0kEstE/p6KtLDFvUh06gGXvHmRc8Zbs2wFEYE6VXaKDgC7i5/limU/gHMmADKMYw4dtLOmVk4FsXIL59AKVV</certificate>
+        <consumerKey>REDACTED_FOR_SECURITY</consumerKey>
+        <isAdminApproved>true</isAdminApproved>
+        <isClientCredentialEnabled>false</isClientCredentialEnabled>
+        <isCodeCredentialEnabled>false</isCodeCredentialEnabled>
+        <isCodeCredentialPostOnly>false</isCodeCredentialPostOnly>
+        <isConsumerSecretOptional>false</isConsumerSecretOptional>
+        <isIntrospectAllTokens>false</isIntrospectAllTokens>
+        <isNamedUserJwtEnabled>false</isNamedUserJwtEnabled>
+        <isPkceRequired>true</isPkceRequired>
+        <isRefreshTokenRotationEnabled>false</isRefreshTokenRotationEnabled>
+        <isSecretRequiredForRefreshToken>true</isSecretRequiredForRefreshToken>
+        <isSecretRequiredForTokenExchange>false</isSecretRequiredForTokenExchange>
+        <isTokenExchangeEnabled>false</isTokenExchangeEnabled>
+        <scopes>Full</scopes>
+        <scopes>RefreshToken</scopes>
+    </oauthConfig>
+    <oauthPolicy>
+        <ipRelaxation>ENFORCE</ipRelaxation>
+        <isTokenExchangeFlowEnabled>false</isTokenExchangeFlowEnabled>
+        <refreshTokenPolicy>infinite</refreshTokenPolicy>
+    </oauthPolicy>
+    <permissionSetName>Heroku JWT Access</permissionSetName>
+</ConnectedApp>
