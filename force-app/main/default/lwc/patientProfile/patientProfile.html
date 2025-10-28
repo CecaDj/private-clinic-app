@@ -1,0 +1,65 @@
+<template>
+    <lightning-card title="My Profile" icon-name="standard:contact">
+        <div class="slds-p-around_medium">
+
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </template>
+
+            <template if:true={showIncompleteBanner}>
+                <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_medium" role="alert">
+                    <span class="slds-assistive-text">Warning</span>
+                    Your profile is incomplete. Please update all required fields before booking appointments.
+                </div>
+            </template>
+
+            <template if:true={patientId}>
+                <lightning-record-edit-form
+                    record-id={patientId}
+                    object-api-name="Patient__c"
+                    onsuccess={handleSuccess}
+                    onerror={handleError}>
+
+                    <lightning-messages></lightning-messages>
+
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input-field field-name="Name"></lightning-input-field>
+                            <lightning-input-field field-name="Date_of_Birth__c"></lightning-input-field>
+                            <lightning-input-field field-name="Phone__c"></lightning-input-field>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <!-- Funding Type (controls Insurance visibility) -->
+                            <lightning-input-field
+                                field-name="Funding_Type__c"
+                                onchange={handleFundingChange}>
+                            </lightning-input-field>
+
+                            <!-- Insurance Company (conditionally visible) -->
+                            <template if:true={showInsuranceField}>
+                                <lightning-input-field field-name="Insurance_Company__c"></lightning-input-field>
+                            </template>
+
+                            <lightning-input-field field-name="Address__c"></lightning-input-field>
+                        </div>
+                    </div>
+
+                    <div class="slds-m-top_medium">
+                        <lightning-button
+                            class="slds-m-right_small"
+                            variant="brand"
+                            type="submit"
+                            label="Save Changes">
+                        </lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+            </template>
+
+            <template if:false={patientId}>
+                <p class="slds-text-color_weak">No profile record found for your user.</p>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>
