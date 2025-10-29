@@ -115,4 +115,26 @@ private class AppointmentTriggerTest {
             'Appointment within valid working hours and future date should insert successfully.'
         );
     }
+
+    @IsTest
+    static void testAppointmentSharing() {
+        User portalUser = TestDataFactory.createPortalUser();
+        Patient__c patient = [SELECT Id FROM Patient__c WHERE User__c = :portalUser.Id];
+        Doctor__c doctor = TestDataFactory.createDoctor();
+        Treatment__c treatment = [SELECT Id FROM Treatment__c LIMIT 1];
+
+        Test.startTest();
+        Appointment__c appointment = TestDataFactory.createAppointment(patient.Id, doctor.Id, treatment.Id);
+        Test.stopTest();
+
+        List<Appointment__Share> shares = [
+            SELECT Id, ParentId, UserOrGroupId, AccessLevel
+            FROM Appointment__Share
+            WHERE ParentId = :appointment.Id AND UserOrGroupId = :portalUser.Id
+        ];
+
+        System.assertEquals(1, shares.size(), 'Appointment share should be created');
+        System.assertEquals(portalUser.Id, shares[0].UserOrGroupId);
+        System.assertEquals('Edit', shares[0].AccessLevel);
+    }
 }
