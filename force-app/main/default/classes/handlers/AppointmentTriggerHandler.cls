@@ -95,4 +95,28 @@ public class AppointmentTriggerHandler {
             app.addError('The selected time is outside the doctor’s working hours.');
         }
     }
+
+    // Determines when Appointment__c records need to be shared with the related patient portal user.
+    public static void queueShareEvents(List<Appointment__c> newList, Map<Id, Appointment__c> oldMap) {
+        if (UserInfo.getUserType() == 'PowerCustomerSuccess') return;
+
+        List<ShareEvent__e> events = new List<ShareEvent__e>();
+
+        for (Appointment__c app : newList) {
+            if (app.Patient__c == null) continue;
+
+            if (Trigger.isInsert ||
+                (Trigger.isUpdate && 
+                 (app.Patient__c != oldMap.get(app.Id).Patient__c || 
+                  app.OwnerId != oldMap.get(app.Id).OwnerId))) {
+
+                events.add(new ShareEvent__e(
+                    RecordId__c = app.Id,
+                    ObjectName__c = 'Appointment__c'
+                ));
+            }
+        }
+
+        if (!events.isEmpty()) EventBus.publish(events);
+    }
 }
