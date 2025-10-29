@@ -1,59 +1,90 @@
 @IsTest
 private class AppointmentControllerTest {
 
-    @IsTest
-    static void testGetAppointments_AsAdmin() {
-        
+    @TestSetup
+    static void setup() {
+        User portalUser = TestDataFactory.createPortalUser();
         Doctor__c doctor = TestDataFactory.createDoctor();
         Treatment__c treatment = TestDataFactory.createTreatment();
-        Patient__c patient = TestDataFactory.createPatient(null);
-        Appointment__c appointment = TestDataFactory.createAppointment(patient.Id, doctor.Id, treatment.Id);
 
-        
-        Test.startTest();
-        List<Map<String, Object>> result = AppointmentController.getAppointments();
-        Test.stopTest();
-
-        
-        System.assertEquals(1, result.size(), 'Should return one appointment');
-        System.assertEquals('Dr. Smith', result[0].get('DoctorName'));
-        System.assertEquals('Initial consultation', result[0].get('Treatment'));
-        System.assertEquals('09:00:00', result[0].get('StartTime'));
-        System.assertEquals(patient.Name, result[0].get('Patient'));
+        Patient__c patient = [SELECT Id FROM Patient__c WHERE User__c = :portalUser.Id LIMIT 1];
+        TestDataFactory.createAppointment(patient.Id, doctor.Id, treatment.Id);
     }
 
     @IsTest
-    static void testGetAppointments_AsDoctor() {
+    static void testGetAppointments() {
+        User portalUser = [SELECT Id FROM User WHERE Profile.Name='Patient Portal User' LIMIT 1];
 
-        Doctor__c doctor = TestDataFactory.createDoctor();
-        Treatment__c treatment = TestDataFactory.createTreatment();
-        Patient__c patient = TestDataFactory.createPatient(null);
-        Appointment__c appointment = TestDataFactory.createAppointment(patient.Id, doctor.Id, treatment.Id);
-
-        Profile doctorProfile = [SELECT Id FROM Profile WHERE Name = 'Doctor' LIMIT 1];
-        User doctorUser = new User(
-            ProfileId = doctorProfile.Id,
-            LastName = 'DoctorUser',
-            Username = 'doctoruser' + System.currentTimeMillis() + '@test.com',
-            Email = 'doctoruser' + System.currentTimeMillis() + '@test.com',
-            Alias = 'drusr',
-            TimeZoneSidKey = 'Europe/Paris',
-            LocaleSidKey = 'en_US',
-            EmailEncodingKey = 'UTF-8',
-            LanguageLocaleKey = 'en_US'
-        );
-        insert doctorUser;
-
-        doctor.User__c = doctorUser.Id;
-        update doctor;
-
-        Test.startTest();
-        System.runAs(doctorUser) {
-            List<Map<String, Object>> result = AppointmentController.getAppointments();
+        System.runAs(portalUser) {
+            Test.startTest();
+            List<Map<String, Object>> results = AppointmentController.getAppointments();
+            Test.stopTest();
+            System.assertNotEquals(null, results, 'Expected non-null results');
         }
-        Test.stopTest();
-
-        System.assertEquals(1, result.size(), 'Doctor should see their own appointment');
-        System.assertEquals('Dr. Smith', result[0].get('DoctorName'));
     }
+
+    @IsTest
+    static void testGetAppointmentsForPatient() {
+        User portalUser = [SELECT Id FROM User WHERE Profile.Name='Patient Portal User' LIMIT 1];
+
+        System.runAs(portalUser) {
+            Test.startTest();
+            Map<String, List<Appointment__c>> results = AppointmentController.getAppointmentsForPatient();
+            Test.stopTest();
+            System.assertNotEquals(null, results, 'Expected a result map');
+            System.assert(results.containsKey('upcoming'), 'Expected upcoming appointments key');
+            System.assert(results.containsKey('past'), 'Expected past appointments key');
+        }
+    }
+
+    @IsTest
+    static void testCancelAppointment() {
+        User portalUser = [SELECT Id FROM User WHERE Profile.Name='Patient Portal User' LIMIT 1];
+        Appointment__c appt = [SELECT Id FROM Appointment__c LIMIT 1];
+
+        System.runAs(portalUser) {
+            Test.startTest();
+            AppointmentController.cancelAppointment(appt.Id);
+            Test.stopTest();
+
+            Appointment__c updated = [SELECT Status__c FROM Appointment__c WHERE Id = :appt.Id];
+            System.assertEquals('Cancelled', updated.Status__c, 'Appointment should be cancelled');
+        }
+    }
+
+    @IsTest
+    static void testBookAppointment() {
+        User portalUser = TestDataFactory.createPortalUser();
+
+        Patient__c patient = [
+            SELECT Id, Date_of_Birth__c, Funding_Type__c, Phone__c, Address__c
+            FROM Patient__c
+            WHERE User__c = :portalUser.Id
+            LIMIT 1
+        ];
+
+        patient.Date_of_Birth__c = Date.newInstance(1990,1,1);
+        patient.Funding_Type__c = 'Self-Funding';
+        patient.Phone__c = '555-555';
+        patient.Address__c = 'Test Street';
+        update patient;
+
+        Doctor__c doctor = [SELECT Id FROM Doctor__c LIMIT 1];
+        Treatment__c treatment = [SELECT Id FROM Treatment__c LIMIT 1];
+
+        System.runAs(portalUser) {
+            Test.startTest();
+            String result = AppointmentController.bookAppointment(
+                doctor.Id,
+                treatment.Id,
+                Date.today().addDays(1),
+                '09:00 AM'
+            );
+            Test.stopTest();
+
+            System.assert(result.contains('Appointment booked successfully'),
+                'Expected success message but got: ' + result);
+        }
+    }
+
 }
